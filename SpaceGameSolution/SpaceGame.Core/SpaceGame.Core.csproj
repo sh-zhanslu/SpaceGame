@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SpaceGame.Core</RootNamespace>
     <AssemblyName>SpaceGame.Core</AssemblyName>
-    <TargetFrameworkVersion>net8.0</TargetFrameworkVersion>
+    <TargetFramework>net8.0</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
