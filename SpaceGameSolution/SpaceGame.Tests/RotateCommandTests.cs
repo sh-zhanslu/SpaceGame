@@ -1,5 +1,5 @@
-using Moq;
 using SpaceGame.Core;
+using Moq;
 namespace SpaceGame.Tests;
 
 public class TestsRotateCommand
