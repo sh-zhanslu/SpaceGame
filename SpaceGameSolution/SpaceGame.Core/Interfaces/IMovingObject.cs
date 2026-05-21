@@ -4,7 +4,7 @@ namespace SpaceGame.Core
 {
     public interface IMovingObject
     {
-        Vector Position { get; set; }
-        Vector Velocity { get; }
+        Vectors Position { get; set; }
+        Vectors Velocity { get; }
     }
 }

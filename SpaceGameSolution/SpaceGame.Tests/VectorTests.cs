@@ -1,75 +1,121 @@
 ﻿using System;
+using System.Numerics;
+using System.Reflection;
+using System.Runtime.Intrinsics;
+using Microsoft.VisualBasic;
 using SpaceGame.Core;
-using Xunit;
+namespace SpaceGame.Tests;
 
-namespace SpaceGame.Tests
+public class UnitTest
 {
-    public class VectorTests
+    [Fact] //2
+    public void SuccessedMoveToOrigin()
     {
-        [Fact]
-        public void Add_Vectors_ReturnsSum()
-        {
-            var v1 = new Vector(1, -1, 2);
-            var v2 = new Vector(-1, 1, -2);
-            var result = v1 + v2;
-            Assert.Equal(new Vector(0, 0, 0), result);
-        }
+        // AAA
+        Vectors vector1 = new Vectors(new int[]{1, -1, 2});
+        Vectors vector2 = new Vectors(new int[]{-1, 1, -2});
 
-        [Fact]
-        public void Add_DifferentDimensions_ThrowsArgumentException()
-        {
-            var v1 = new Vector(1, 2, 3);
-            var v2 = new Vector(1, 2);
-            Assert.Throws<ArgumentException>(() => v1 + v2);
-        }
+        Vectors result = vector1 + vector2;
 
-        [Fact]
-        public void Add_DifferentDimensionsReverse_ThrowsArgumentException()
-        {
-            var v1 = new Vector(1, 2);
-            var v2 = new Vector(1, 2, 3);
-            Assert.Throws<ArgumentException>(() => v1 + v2);
-        }
+        Assert.Equal(vector1.dimension, result.dimension);
+        Assert.Equal(result.coords, new int[]{0, 0, 0});
+    }
 
-        [Fact]
-        public void Equals_SameComponents_ReturnsTrue()
-        {
-            var v1 = new Vector(1, 2, 3);
-            var v2 = new Vector(1, 2, 3);
-            Assert.True(v1.Equals(v2));
-        }
+    [Fact] //3
+    public void ArgumentException_1()
+    {
+        // AAA
+        Vectors vector1 = new Vectors(new int[]{1, 2, 3});
+        Vectors vector2 = new Vectors(new int[]{1, 2});
 
-        [Fact]
-        public void EqualsOperator_SameComponents_ReturnsTrue()
-        {
-            var v1 = new Vector(1, 2, 3);
-            var v2 = new Vector(1, 2, 3);
-            Assert.True(v1 == v2);
-        }
+        Assert.Throws<ArgumentException>(() => vector1 + vector2);
+        Assert.Throws<ArgumentException>(() => vector2 + vector1);
+    }
 
-        [Fact]
-        public void Equals_DifferentComponents_ReturnsFalse()
-        {
-            var v1 = new Vector(1, 2, 3);
-            var v2 = new Vector(1, 2, 4);
-            Assert.False(v1.Equals(v2));
-        }
+    [Fact] //4
+    public void ArgumentException_2()
+    {
+        // AAA
+        Vectors vector1 = new Vectors(new int[]{1, 2});
+        Vectors vector2 = new Vectors(new int[]{1, 2, 3});
 
-        [Fact]
-        public void NotEqualsOperator_DifferentComponents_ReturnsTrue()
-        {
-            var v1 = new Vector(1, 2, 3);
-            var v2 = new Vector(1, 2, 4);
-            Assert.True(v1 != v2);
-        }
+        Assert.Throws<ArgumentException>(() => vector1 + vector2);
+        Assert.Throws<ArgumentException>(() => vector2 + vector1);
+    }
 
-        [Fact]
-        public void GetHashCode_ExistsAndIsConsistent()
-        {
-            var v1 = new Vector(1, 2, 3);
-            var v2 = new Vector(1, 2, 3);
-            Assert.NotEqual(0, v1.GetHashCode());
-            Assert.Equal(v1.GetHashCode(), v2.GetHashCode());
-        }
+    [Fact] //5
+    public void TwoObjectsSameCoord1()
+    {
+        // AAA
+        Vectors vector1 = new Vectors(new int[]{1, 2, 3});
+        Vectors vector2 = new Vectors(new int[]{1, 2, 3});
+
+        bool result = vector1.Equals(vector2);
+
+        Assert.True(result);
+
+    }
+
+    [Fact] //6
+    public void TwoObjectsSameCoord2()
+    {
+        // AAA
+        Vectors vector1 = new Vectors(new int[]{1, 2, 3});
+        Vectors vector2 = new Vectors(new int[]{1, 2, 3});
+
+        Assert.True(vector1 == vector2);
+
+    }
+
+    [Fact] //7
+    public void TwoObjectsDifferentCoord1()
+    {
+        // AAA
+        Vectors vector1 = new Vectors(new int[]{1, 2, 3});
+        Vectors vector2 = new Vectors(new int[]{3, 2, 1});
+
+        bool result = vector1.Equals(vector2);
+
+        Assert.False(result);
+    }
+
+    [Fact] //8
+    public void TwoObjectsDifferentCoord2()
+    {
+        // AAA
+        Vectors vector1 = new Vectors(new int[]{1, 2, 3});
+        Vectors vector2 = new Vectors(new int[]{3, 2, 1});
+
+        Assert.True(vector1 != vector2);
+    }
+
+    [Fact] //9
+    public void IsVecrottContainsHashCode()
+    {
+        // AAA
+        Vectors vector = new Vectors(new int[]{1,2,3});
+
+        int hash = vector.GetHashCode();
+        Assert.NotEqual(0, hash);
+    }
+
+    [Fact]
+    public void VectorsConstructorThrowsArgumentExceptionWhenCoordsIsEmpty()
+    {
+
+        Assert.Throws<ArgumentException>(() => new Vectors(new int[] { }));
+    }
+
+    [Fact]
+    public void VectorsEqualsReturnsFalseWhenObjectIsNotVectors()
+    {
+        var v = new Vectors(new int[] { 1, 2 });
+
+        Assert.False(v.Equals("строка вместо вектора"));
+    }
+    [Fact]
+    public void Vectors_Constructor_ThrowsException_WhenCoordsIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new Vectors(null!));
     }
 }

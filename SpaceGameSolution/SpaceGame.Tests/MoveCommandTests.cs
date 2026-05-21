@@ -1,58 +1,58 @@
-﻿using System;
-using Moq;
+﻿using Moq;
 using SpaceGame.Core;
-using Xunit;
-
 namespace SpaceGame.Tests
 {
-    public class MoveCommandTests
+    public class MoveTest
     {
         [Fact]
-        public void Move_ObjectWithPositionAndVelocity_UpdatesPositionCorrectly()
+        public void TestObjectMove()
         {
-            // Arrange
-            var mock = new Mock<IMovingObject>();
-            mock.SetupProperty(o => o.Position, new Vector(12, 5));
-            mock.Setup(o => o.Velocity).Returns(new Vector(-4, 1));
-            var command = new MoveCommand(mock.Object);
+            var ship = new Mock<IMovingObject>();
 
-            // Act
+            ship.SetupGet(a => a.Position).Returns(new Vectors(new int[] { 12, 5 }));
+            ship.SetupGet(a => a.Velocity).Returns(new Vectors(new int[] { -4, 1 }));
+
+            var command = new MoveCommand(ship.Object);
             command.Execute();
 
-            // Assert
-            Assert.Equal(new Vector(8, 6), mock.Object.Position);
+            ship.VerifySet(a => a.Position = new Vectors(new int[] { 8, 6 }));
         }
 
         [Fact]
-        public void Move_WhenPositionIsNull_ThrowsInvalidOperationException()
+        public void TestPositionObjectCannotRead()
         {
-            var mock = new Mock<IMovingObject>();
-            mock.Setup(o => o.Position).Returns((Vector)null!);
-            mock.Setup(o => o.Velocity).Returns(new Vector(1, 1));
-            var command = new MoveCommand(mock.Object);
+            var ship = new Mock<IMovingObject>();
+            ship.SetupGet(a => a.Position).Throws<InvalidOperationException>();
+
+            var command = new MoveCommand(ship.Object);
 
             Assert.Throws<InvalidOperationException>(() => command.Execute());
         }
 
         [Fact]
-        public void Move_WhenVelocityIsNull_ThrowsInvalidOperationException()
+        public void TestVelocityObjectCannotRead()
         {
-            var mock = new Mock<IMovingObject>();
-            mock.Setup(o => o.Position).Returns(new Vector(0, 0));
-            mock.Setup(o => o.Velocity).Returns((Vector)null!);
-            var command = new MoveCommand(mock.Object);
+            var ship = new Mock<IMovingObject>();
+
+            ship.SetupGet(a => a.Position).Returns(new Vectors(new int[] { 12, 5 }));
+            ship.SetupGet(a => a.Velocity).Throws<InvalidOperationException>();
+
+            var command = new MoveCommand(ship.Object);
 
             Assert.Throws<InvalidOperationException>(() => command.Execute());
         }
 
         [Fact]
-        public void Move_WhenSettingPositionThrows_ThrowsInvalidOperationException()
+        public void TestImpossibleChangePositionObject()
         {
-            var mock = new Mock<IMovingObject>();
-            mock.Setup(o => o.Position).Returns(new Vector(0, 0));
-            mock.Setup(o => o.Velocity).Returns(new Vector(1, 1));
-            mock.SetupSet(o => o.Position = It.IsAny<Vector>()).Throws<Exception>();
-            var command = new MoveCommand(mock.Object);
+            var ship = new Mock<IMovingObject>();
+
+            ship.SetupGet(a => a.Position).Returns(new Vectors(new int[] { 12, 5 }));
+            ship.SetupGet(a => a.Velocity).Returns(new Vectors(new int[] { -7, 3 }));
+
+            ship.SetupSet(a => a.Position = new Vectors(new int[] { 5, 8 })).Throws<InvalidOperationException>();
+
+            var command = new MoveCommand(ship.Object);
 
             Assert.Throws<InvalidOperationException>(() => command.Execute());
         }

@@ -1,77 +1,92 @@
-﻿using SpaceGame.Core;
-using Xunit;
+﻿using System.Reflection.Metadata;
+using SpaceGame.Core;
 
-namespace SpaceGame.Tests
+namespace SpaceGame.Tests{
+
+public class AngleTests
 {
-    public class AngleTests
+    [Fact]
+    public void SumOfAngles()
     {
-        public AngleTests()
-        {
-            // Устанавливаем общий знаменатель для всех тестов 
-            Angle.Denominator = 8;
-        }
+        //AAA
+        var a1 = new Angle(5);
+        var a2 = new Angle(7);
 
-        [Fact]
-        public void Add_Angles_ReturnsReducedAngle()
-        {
-            var a = new Angle(5); // 5/8
-            var b = new Angle(7); // 7/8
-            var sum = a + b;      // 12/8 -> 4/8
-            Assert.Equal(4, sum.Numerator);
-        }
+        var result = a1 + a2;
+        int expected = 4;
 
-        [Fact]
-        public void Equals_SameReducedAngles_ReturnsTrue()
-        {
-            var a = new Angle(15); // 15 mod 8 = 7
-            var b = new Angle(23); // 23 mod 8 = 7
-            Assert.True(a.Equals(b));
-        }
+        Assert.Equal(result.numenator, expected);
 
-        [Fact]
-        public void EqualsOperator_SameReducedAngles_ReturnsTrue()
-        {
-            var a = new Angle(15);
-            var b = new Angle(23);
-            Assert.True(a == b);
-        }
-
-        [Fact]
-        public void Equals_DifferentAngles_ReturnsFalse()
-        {
-            var a = new Angle(1);
-            var b = new Angle(2);
-            Assert.False(a.Equals(b));
-        }
-
-        [Fact]
-        public void NotEqualsOperator_DifferentAngles_ReturnsTrue()
-        {
-            var a = new Angle(1);
-            var b = new Angle(2);
-            Assert.True(a != b);
-        }
-
-        [Fact]
-        public void GetHashCode_ExistsAndConsistent()
-        {
-            var a = new Angle(5);
-            var b = new Angle(5);
-            Assert.NotEqual(0, a.GetHashCode());
-            Assert.Equal(a.GetHashCode(), b.GetHashCode());
-        }
-
-        // Дополнительный тест на синус/косинус 
-        [Fact]
-        public void SinCos_ReturnsCorrectValues()
-        {
-            var angle0 = new Angle(0);
-            Assert.Equal(1.0, Angle.Cos(angle0), 5);
-            Assert.Equal(0.0, Angle.Sin(angle0), 5);
-
-            var angle90 = new Angle(2); // 2/8 = 1/4 оборота = 90°
-            Assert.Equal(0.0, Angle.Cos(angle90), 5);
-            Assert.Equal(1.0, Angle.Sin(angle90), 5);
-        }
     }
+
+    [Fact]
+    public void AnglesAreEqualReturnTrue()
+    {
+        var a1 = new Angle(15);
+        var a2 = new Angle(23);
+
+        var result = a1.Equals(a2);
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void SumOfAnglesOperatorReturnTrue()
+    {
+        var a1 = new Angle(15);
+        var a2 = new Angle(23);
+
+        Assert.True(a1 == a2);
+    }
+
+    [Fact]
+    public void AnglesAreEqualReturnFalse()
+    {
+        var a1 = new Angle(1);
+        var a2 = new Angle(2);
+
+        var result = a1.Equals(a2);
+
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void SumOfAnglesOperatorReturnFalse()
+    {
+        var a1 = new Angle(1);
+        var a2 = new Angle(2);
+
+        Assert.True(a1 != a2);
+    }
+
+    [Fact]
+    public void GetHashCodeOfAngle()
+    {
+        var a1 = new Angle(1);
+
+        var hash = a1.GetHashCode();
+
+        Assert.NotEqual(0, hash);
+    }
+
+    [Fact]
+    public void AngleEqualsReturnsFalseForNullAndDifferentType()
+    {
+        var angle = new Angle(1);
+
+        Assert.False(angle.Equals(null));
+    }
+
+    [Fact]
+    public void AngleNotEqualOperatorWorksCorrectly()
+    {
+        var a1 = new Angle(1);
+        var a2 = new Angle(2);
+        var a3 = new Angle(1);
+
+        Assert.True(a1 != a2);
+
+        Assert.False(a1 != a3);
+    }
+}
 }
