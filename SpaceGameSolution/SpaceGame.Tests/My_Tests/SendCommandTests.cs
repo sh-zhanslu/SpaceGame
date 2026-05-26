@@ -31,4 +31,22 @@ public class SendCommandTests
 
         Assert.Throws<InvalidOperationException>(() => sendCommand.Execute());
     }
+    [Fact]
+    public void RegisterIoCDependencySendCommand_ShouldResolveCorrectlyFromIoC()
+    {
+        var registerCommand = new RegisterIoCDependencySendCommand();
+        registerCommand.Execute();
+
+        var mockCommand = new Mock<ICommand>();
+        var mockReceiver = new Mock<ICommandReceiver>();
+
+        var resolvedCommand = App.Ioc.Resolve<ICommand>(
+            "Commands.Send", 
+            mockCommand.Object, 
+            mockReceiver.Object
+        );
+
+        Assert.NotNull(resolvedCommand);
+        Assert.IsType<SendCommand>(resolvedCommand);
+    }
 }
