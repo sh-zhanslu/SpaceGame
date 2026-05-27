@@ -1,14 +1,16 @@
 using App;
-namespace SpaceGame.Core;
 
-public class RegisterIoCDependencySendCommand : ICommand
+namespace SpaceGame.Core
 {
-    public void Execute()
+    public class RegisterIoCDependencySendCommand : ICommand
     {
-        Ioc.Resolve<ICommand>(
-            "IoC.Register",
-            "Commands.Send",
-            (object[] args) => new SendCommand((ICommand)args[0], (ICommandReceiver)args[1])
-        ).Execute();
+        public void Execute()
+        {
+            Ioc.Resolve<App.ICommand>(
+                "IoC.Register", 
+                "Commands.Send", 
+                (object[] args) => new SendCommand((ICommand)args[0], (ICommandReceiver)args[1])
+            ).Execute();
+        }
     }
 }

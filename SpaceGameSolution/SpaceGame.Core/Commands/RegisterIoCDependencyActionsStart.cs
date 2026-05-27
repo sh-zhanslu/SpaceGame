@@ -1,5 +1,8 @@
 using App;
+using System.Collections.Generic;
+
 namespace SpaceGame.Core;
+
 public class RegisterIoCDependencyActionsStart : ICommand
 {
     public void Execute()
@@ -11,10 +14,10 @@ public class RegisterIoCDependencyActionsStart : ICommand
         catch
         {
             var registry = new Dictionary<object, ICommandInjectable>();
-            Ioc.Resolve<ICommand>("IoC.Register", "Actions.Registry", (object[] args) => registry).Execute();
+            Ioc.Resolve<App.ICommand>("IoC.Register", "Actions.Registry", (object[] args) => registry).Execute();
         }
 
-        Ioc.Resolve<ICommand>(
+        Ioc.Resolve<App.ICommand>(
             "IoC.Register",
             "Actions.Start",
             (object[] args) =>
@@ -31,7 +34,7 @@ public class RegisterIoCDependencyActionsStart : ICommand
                     var registry = Ioc.Resolve<IDictionary<object, ICommandInjectable>>("Actions.Registry");
                     registry[target] = injectable;
                     
-                    Ioc.Resolve<ICommand>("Queue.Push", injectable).Execute();
+                    Ioc.Resolve<ICommand>("Queue.Push", injectable);
                 });
             }
         ).Execute();
