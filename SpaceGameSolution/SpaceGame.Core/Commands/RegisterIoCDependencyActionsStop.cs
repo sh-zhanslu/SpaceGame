@@ -5,7 +5,7 @@ public class RegisterIoCDependencyActionsStop : ICommand
 {
     public void Execute()
     {
-        Ioc.Resolve<ICommand>(
+        Ioc.Resolve<App.ICommand>(
             "IoC.Register",
             "Actions.Stop",
             (object[] args) =>

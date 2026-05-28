@@ -1,10 +1,23 @@
 using System;
 using Moq;
 using Xunit;
+using App;
 using SpaceGame.Core;
 
-public class SendCommandTests
+public class SendCommandTests : IDisposable
 {
+    public SendCommandTests()
+    {
+        new App.Scopes.InitCommand().Execute();
+        var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+        Ioc.Resolve<App.ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+    }
+
+    public void Dispose()
+    {
+        Ioc.Resolve<App.ICommand>("IoC.Scope.Current.Clear").Execute();
+    }
+
     [Fact]
     public void Execute_PassesCommandToReceiver()
     {
@@ -31,6 +44,7 @@ public class SendCommandTests
 
         Assert.Throws<InvalidOperationException>(() => sendCommand.Execute());
     }
+
     [Fact]
     public void RegisterIoCDependencySendCommand_ShouldResolveCorrectlyFromIoC()
     {
@@ -40,9 +54,9 @@ public class SendCommandTests
         var mockCommand = new Mock<ICommand>();
         var mockReceiver = new Mock<ICommandReceiver>();
 
-        var resolvedCommand = App.Ioc.Resolve<ICommand>(
-            "Commands.Send", 
-            mockCommand.Object, 
+        var resolvedCommand = Ioc.Resolve<ICommand>(
+            "Commands.Send",
+            mockCommand.Object,
             mockReceiver.Object
         );
 
