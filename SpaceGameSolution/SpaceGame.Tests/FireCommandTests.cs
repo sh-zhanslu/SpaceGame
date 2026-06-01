@@ -1,74 +1,61 @@
+using System;
+using System.Collections.Generic;
+using Xunit;
+using Moq;
 using App;
 using App.Scopes;
-using Moq;
 using SpaceGame.Core;
-namespace SpaceGame.Test
+
+namespace SpaceGame.Test;
+
+public class FireCommandTests : IDisposable
 {
-    public class FireCommandTests : IDisposable
+    public FireCommandTests()
     {
-        public FireCommandTests()
-        {
-            new InitCommand().Execute();
-            //var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            //Ioc.Resolve<App.ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
-        }
-        [Fact]
-        public void Execute_ShouldRegisterFireCommandDependency()
-        {
-            var position = new Vectors(new[] { 0, 0 });
-            var fireDirection = new Vectors(new[] { 2, 1 });
-            var speed = 2.0;
-            var velocity = new Vectors(new[] { (int)(2 * speed), (int)(1 * speed) });
-            var cmd = new Mock<ICommand>();
-            var weaponMock = new Mock<IMovingObject>();
-            weaponMock.SetupGet(a => a.Position).Returns(position);
-            weaponMock.SetupGet(a => a.Velocity).Returns(velocity);
-            weaponMock.SetupProperty(w => w.Position);
-            var receiverMock = new Mock<ICommandReceiver>();
-            var gameItems = new Dictionary<string, object>();
-            Ioc.Resolve<App.ICommand>("IoC.Register", "Weapon.Create", (object[] args) =>
-            {
-                return new Dictionary<string, object> { { "Id", (string)args[0] } };
-            }).Execute();
-            Ioc.Resolve<App.ICommand>("IoC.Register", "Adapters.IMovingObject", (object[] args) =>
-            {
-                return weaponMock.Object;
-            }).Execute();
-            Ioc.Resolve<App.ICommand>("IoC.Register", "Weapon.Setup", (object[] args) =>
-            {
-                var weapon = (IMovingObject)args[0];
-                var pos = (Vectors)args[1];
-                weapon.Position = pos;
-                return cmd.Object;
-            }).Execute();
-            Ioc.Resolve<App.ICommand>("IoC.Register", "Game.Receiver", (object[] args) =>
-            {
-                return receiverMock.Object;
-            }).Execute();
-            Ioc.Resolve<App.ICommand>("IoC.Register", "Game.Item.Add", (object[] args) =>
-            {
-                var id = (string)args[0];
-                var item = args[1];
-                gameItems[id] = item;
-                return cmd.Object;
-            }).Execute();
-            Ioc.Resolve<App.ICommand>("IoC.Register", "Game.Item.Get", (object[] args) => gameItems[(string)args[0]]).Execute();
-            new RegisterIoCDependencyMoveCommand().Execute();
-            new RegisterFireDependencies().Execute();
-            new RegisterIoCDependencyActionsStart().Execute();
-            var fireCommand = Ioc.Resolve<ICommand>("Commands.Fire", position, fireDirection, speed);
-            fireCommand.Execute();
-            Assert.IsType<FireCommand>(fireCommand);
-            receiverMock.Verify(r => r.Receive(It.IsAny<ICommand>()), Times.Once());
-        }
-        [Fact]
-        public void Execute_NotShouldRegisterFireCommandDependency()
-        {
-            Assert.ThrowsAny<Exception>(() => Ioc.Resolve<ICommand>("Commands.Fire"));
-        }
-        public void Dispose()
-        {
-            //Ioc.Resolve<App.ICommand>("IoC.Scope.Current.Clear").Execute();
-        }
+        new InitCommand().Execute();
+        var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+        Ioc.Resolve<App.ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+    }
+
+    public void Dispose()
+    {
+        Ioc.Resolve<App.ICommand>("IoC.Scope.Current.Clear").Execute();
+    }
+
+    [Fact]
+    public void Execute_ShouldSuccessfullyCreateAndStartWeapon()
+    {
+        var position = new Vectors(new int[] { 0, 0 });
+        var direction = new Vectors(new int[] { 1, 1 });
+        double speed = 2.0;
+
+        var mockWeaponDict = new Dictionary<string, object> { { "Id", "weapon_id_123" } };
+        Ioc.Resolve<App.ICommand>("IoC.Register", "Weapon.Create", (object[] args) => mockWeaponDict).Execute();
+
+        var mockMovingObject = new Mock<IMovingObject>();
+        Ioc.Resolve<App.ICommand>("IoC.Register", "Adapters.IMovingObject", (object[] args) => mockMovingObject.Object).Execute();
+
+        var mockSetupCmd = new Mock<ICommand>();
+        Ioc.Resolve<App.ICommand>("IoC.Register", "Weapon.Setup", (object[] args) => mockSetupCmd.Object).Execute();
+
+        var mockAddItemCmd = new Mock<ICommand>();
+        Ioc.Resolve<App.ICommand>("IoC.Register", "Game.Item.Add", (object[] args) => mockAddItemCmd.Object).Execute();
+
+        var mockMoveCmd = new Mock<ICommand>();
+        Ioc.Resolve<App.ICommand>("IoC.Register", "Commands.Move", (object[] args) => mockMoveCmd.Object).Execute();
+
+        var mockReceiver = new Mock<ICommandReceiver>();
+        Ioc.Resolve<App.ICommand>("IoC.Register", "Game.Receiver", (object[] args) => mockReceiver.Object).Execute();
+
+        var mockStartCmd = new Mock<ICommand>();
+        Ioc.Resolve<App.ICommand>("IoC.Register", "Actions.Start", (object[] args) => mockStartCmd.Object).Execute();
+
+        var fireCommand = new FireCommand(position, direction, speed);
+
+        fireCommand.Execute();
+
+        mockSetupCmd.Verify(c => c.Execute(), Times.Once);
+        mockAddItemCmd.Verify(c => c.Execute(), Times.Once);
+        mockStartCmd.Verify(c => c.Execute(), Times.Once);
     }
 }

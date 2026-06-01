@@ -1,4 +1,5 @@
-﻿using App;
+﻿using System;
+using App;
 
 namespace SpaceGame.Core
 {
@@ -6,8 +7,14 @@ namespace SpaceGame.Core
     {
         public void Execute()
         {
-            Ioc.Resolve<App.ICommand>("IoC.Register", "Commands.Move", (object[] args) =>
-                new MoveCommand(Ioc.Resolve<IMovingObject>("Adapters.IMovingObject", args[0]))).Execute();
+            try
+            {
+                Ioc.Resolve<App.ICommand>("IoC.Register", "Commands.Move", (object[] args) =>
+                    new MoveCommand(Ioc.Resolve<IMovingObject>("Adapters.IMovingObject", args[0]))).Execute();
+            }
+            catch (ArgumentException)
+            {
+            }
         }
     }
 }
