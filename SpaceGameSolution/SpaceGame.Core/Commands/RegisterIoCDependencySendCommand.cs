@@ -6,8 +6,7 @@ namespace SpaceGame.Core
     {
         public void Execute()
         {
-            Ioc.Resolve<App.ICommand>(
-                "IoC.Register", 
+            Ioc.Resolve<App.ICommand>("IoC.Register", 
                 "Commands.Send", 
                 (object[] args) => new SendCommand((ICommand)args[0], (ICommandReceiver)args[1])
             ).Execute();

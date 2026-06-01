@@ -341,3 +341,5 @@ ASALocalRun/
 
 # OS-specific files
 **/.DS_Store
+
+coverage-report
