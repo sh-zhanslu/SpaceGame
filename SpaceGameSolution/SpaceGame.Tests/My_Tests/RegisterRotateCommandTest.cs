@@ -1,44 +1,58 @@
-// 📁 SpaceBattle.Lib.Tests/RegisterIoCDependencyRotateCommandTests.cs
+using System;
+using System.Collections.Generic;
+using Xunit;
+using Moq;
 using App;
 using App.Scopes;
-using Moq;
-
 using SpaceGame.Core;
 
-namespace SpaceBattle.Lib.Tests
+namespace SpaceGame.Tests;
+
+public class RegisterIoCDependencyRotateCommandTests : IDisposable
 {
-    public class RegisterIoCDependencyRotateCommandTests : IDisposable
+    public RegisterIoCDependencyRotateCommandTests()
     {
-        public RegisterIoCDependencyRotateCommandTests()
+        try
         {
             new InitCommand().Execute();
-            var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
-            Ioc.Resolve<ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+        }
+        catch
+        {
         }
 
-        // [Fact]
-        // public void Execute_ShouldRegisterRotateCommandDependency()
-        // {
-        //     var mockAdapter = new Mock<IDictionary<string, object>>();
-        //     var mockGameObject = new Mock<object>();
-            
-        //     Ioc.Resolve<ICommand>(
-        //         "IoC.Register",
-        //         "Adapters.IRotatingObject",
-        //         (object[] args) => mockAdapter.Object
-        //     ).Execute();
+        var iocScope = Ioc.Resolve<object>("IoC.Scope.Create");
+        Ioc.Resolve<App.ICommand>("IoC.Scope.Current.Set", iocScope).Execute();
+    }
 
-        //     var register = new RegisterIoCDependencyRotateCommand();
-        //     register.Execute();
+    [Fact]
+    public void Execute_ShouldRegisterRotateCommandAndResolveItSuccessfully()
+    {
+        var mockAdapter = new Mock<IDictionary<string, object>>();
+        var dummyGameObject = new object();
 
-        //     var command = Ioc.Resolve<ICommand>("Commands.Rotate", mockGameObject.Object);
-            
-        //     Assert.NotNull(command); 
-        // }
+        Ioc.Resolve<App.ICommand>(
+            "IoC.Register",
+            "Adapters.IRotatingObject",
+            (Func<object[], object>)(args => mockAdapter.Object)
+        ).Execute();
 
-        public void Dispose()
+        var registerCommand = new RegisterIoCDependencyRotateCommand();
+        registerCommand.Execute();
+
+        var command = Ioc.Resolve<object>("Commands.Rotate", dummyGameObject);
+
+        Assert.NotNull(command);
+        Assert.IsType<RotateCommand>(command);
+    }
+
+    public void Dispose()
+    {
+        try
         {
-            Ioc.Resolve<ICommand>("IoC.Scope.Current.Clear").Execute();
+            Ioc.Resolve<App.ICommand>("IoC.Scope.Current.Clear").Execute();
+        }
+        catch
+        {
         }
     }
 }

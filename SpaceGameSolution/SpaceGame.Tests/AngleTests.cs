@@ -88,6 +88,16 @@ public class AngleTests
 
         Assert.False(a1 != a3);
     }
+    [Fact]
+    public void ImplicitDoubleConversion_ReturnsCorrectValue()
+    {
+        var angle = new Angle(4); 
+        
+        double result = angle;
+        double expected = 0.5 * 2 * Math.PI; 
+
+        Assert.Equal(expected, result);
+    }
 }
 
 }

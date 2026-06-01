@@ -1,6 +1,5 @@
 using Xunit;
 using SpaceGame.Core;
-using SpaceBattle.Lib;
 using System;
 
 public class CoverageCompletionTests

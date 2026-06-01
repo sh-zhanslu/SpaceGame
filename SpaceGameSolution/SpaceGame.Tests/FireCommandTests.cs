@@ -58,4 +58,19 @@ public class FireCommandTests : IDisposable
         mockAddItemCmd.Verify(c => c.Execute(), Times.Once);
         mockStartCmd.Verify(c => c.Execute(), Times.Once);
     }
+    [Fact]
+    public void RegisterFireDependencies_Execute_ShouldRegisterCommandsFireInIoC()
+    {
+        var position = new Vectors(new int[] { 1, 2 });
+        var direction = new Vectors(new int[] { 3, 4 });
+        double speed = 5.5;
+
+        var registerDependencies = new RegisterFireDependencies();
+        registerDependencies.Execute();
+
+        var resolvedCommand = Ioc.Resolve<object>("Commands.Fire", position, direction, speed);
+
+        Assert.NotNull(resolvedCommand);
+        Assert.IsType<FireCommand>(resolvedCommand);
+    }
 }
